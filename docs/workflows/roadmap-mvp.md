@@ -57,12 +57,7 @@ Referencias: [../arquitectura-multi-tenant.md](../arquitectura-multi-tenant.md),
 - [ ] Email transaccional mínimo (confirmación + link cancelación con `public_code`)
 - [ ] Anti-abuso: rate limit en reserva pública y consulta de slots
 
-## Fase 3 — Página fública + reserva
-
-- Landing fija (sin builder)
-- Flujo: servicio → profesional → slot → datos → confirmación
-- **Email transaccional mínimo:** confirmación + link cancelación (`public_code`)
-- **Anti-abuso:** rate limit IP/teléfono, hold corto, verificación teléfono si hace falta
+Landing fija (sin builder); hold 15 min activo.
 
 ## Fase 4 — Agenda admin + piloto
 
