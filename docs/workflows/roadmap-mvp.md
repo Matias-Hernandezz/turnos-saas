@@ -53,7 +53,7 @@ Referencias: [../arquitectura-multi-tenant.md](../arquitectura-multi-tenant.md),
 
 ## Fase 3 — Página pública + reserva (en curso)
 
-- [ ] Flujo front: servicio → profesional → slot → datos → confirmación
+- [x] Flujo front: servicio → profesional → slot → datos → confirmación
 - [ ] Email transaccional mínimo (confirmación + link cancelación con `public_code`)
 - [ ] Anti-abuso: rate limit en reserva pública y consulta de slots
 

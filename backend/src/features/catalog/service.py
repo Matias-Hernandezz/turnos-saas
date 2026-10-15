@@ -28,6 +28,14 @@ class CatalogService:
         rows = self.services.list_all(limit=200)
         return [self._service_read(r) for r in rows]
 
+    def list_active_services(self) -> list[ServiceRead]:
+        rows = self.services.list_all(limit=200)
+        return [self._service_read(r) for r in rows if r.is_active]
+
+    def list_active_professionals(self) -> list[ProfessionalRead]:
+        rows = self.professionals.list_all(limit=200)
+        return [self._professional_read(r) for r in rows if r.is_active]
+
     def create_service(self, body: ServiceCreate) -> ServiceRead:
         entity = Service(
             tenant_id=self.tenant.tenant_id,

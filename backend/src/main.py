@@ -14,6 +14,7 @@ from features.availability.router import router as availability_router
 from features.booking.router_admin import router as booking_admin_router
 from features.booking.router_public import router as booking_public_router
 from features.catalog.router import router as catalog_router
+from features.catalog.router_public import router as catalog_public_router
 from features.customers.router import router as customers_router
 from features.payments.router import router as payments_router
 from features.payments.webhook import router as payments_webhook_router
@@ -59,6 +60,7 @@ prefix = settings.api_prefix.rstrip("/")
 app.include_router(auth_router, prefix=prefix)
 app.include_router(tenants_router, prefix=prefix)
 app.include_router(catalog_router, prefix=prefix)
+app.include_router(catalog_public_router, prefix=prefix)
 app.include_router(availability_router, prefix=prefix)
 app.include_router(booking_admin_router, prefix=prefix)
 app.include_router(booking_public_router, prefix=prefix)
