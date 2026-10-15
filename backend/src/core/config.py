@@ -25,6 +25,18 @@ class Settings(BaseSettings):
 
     trust_proxy_headers: bool = False
     default_public_host: str = "localhost:5173"
+    public_app_base_url: str = "http://localhost:5173"
+
+    email_from: str = "noreply@turnos.local"
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+
+    public_rate_limit_per_minute: int = 60
+    public_rate_limit_window_seconds: int = 60
+    public_rate_limit_enabled_in_test: bool = False
 
     mp_webhook_secret_tenant_payments: str | None = None
     mp_webhook_secret_subscriptions: str | None = None

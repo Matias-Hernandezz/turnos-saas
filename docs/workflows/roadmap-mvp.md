@@ -51,11 +51,11 @@ Referencias: [../arquitectura-multi-tenant.md](../arquitectura-multi-tenant.md),
 - [x] Test concurrencia lógica (dos sesiones DB + HTTP 409; EXCLUDE en Postgres)
 - [x] Job expirar holds (`booking/jobs.py` + `workers.tasks.run_expire_holds`)
 
-## Fase 3 — Página pública + reserva (en curso)
+## Fase 3 — Página pública + reserva (completa)
 
 - [x] Flujo front: servicio → profesional → slot → datos → confirmación
-- [ ] Email transaccional mínimo (confirmación + link cancelación con `public_code`)
-- [ ] Anti-abuso: rate limit en reserva pública y consulta de slots
+- [x] Email transaccional mínimo (confirmación + link cancelación con `public_code`)
+- [x] Anti-abuso: rate limit en reserva pública y consulta de slots
 
 Landing fija (sin builder); hold 15 min activo.
 

@@ -1,11 +1,11 @@
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlmodel import Session, select
 
 from core.database import get_session
-from core.exceptions import AppError
+from core.rate_limit import enforce_public_rate_limit
+from core.exceptions import AppError, NotFoundError
 from features.booking.schemas import BookingCreatePublic, BookingPublicRead
 from features.booking.service import BookingService
 from models.appointment import Appointment
@@ -19,9 +19,11 @@ router = APIRouter(prefix="/public", tags=["booking-public"])
 def create_booking(
     slug: str,
     body: BookingCreatePublic,
+    request: Request,
     tenant: Annotated[TenantContext, Depends(require_public_tenant)],
     session: Annotated[Session, Depends(get_session)],
 ) -> BookingPublicRead:
+    enforce_public_rate_limit(request)
     try:
         return BookingService(session, tenant).create_public_hold(body)
     except AppError as exc:
@@ -56,3 +58,25 @@ def get_booking_by_code(
         "ends_at": row.ends_at.isoformat(),
         "public_code": row.public_code,
     }
+
+
+@router.post(
+    "/{slug}/bookings/{public_code}/cancel",
+    response_model=BookingPublicRead,
+)
+def cancel_booking(
+    slug: str,
+    public_code: str,
+    tenant: Annotated[TenantContext, Depends(require_public_tenant)],
+    session: Annotated[Session, Depends(get_session)],
+) -> BookingPublicRead:
+    if not public_code or len(public_code) < 16:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    try:
+        return BookingService(session, tenant).cancel_by_public_code(public_code)
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    except AppError as exc:
+        if exc.code == "invalid_status":
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=exc.message)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message)

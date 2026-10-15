@@ -55,6 +55,27 @@ export function fetchPublicSlots(
   return apiFetch<SlotsResponse>(`/public/${encodeURIComponent(slug)}/slots?${q}`);
 }
 
+export type PublicBookingStatus = {
+  slug: string;
+  status: string;
+  starts_at: string;
+  ends_at: string;
+  public_code: string;
+};
+
+export function fetchPublicBooking(slug: string, publicCode: string) {
+  return apiFetch<PublicBookingStatus>(
+    `/public/${encodeURIComponent(slug)}/bookings/${encodeURIComponent(publicCode)}`,
+  );
+}
+
+export function cancelPublicBooking(slug: string, publicCode: string) {
+  return apiFetch<BookingCreated>(
+    `/public/${encodeURIComponent(slug)}/bookings/${encodeURIComponent(publicCode)}/cancel`,
+    { method: "POST" },
+  );
+}
+
 export function createPublicBooking(
   slug: string,
   body: {
@@ -62,6 +83,7 @@ export function createPublicBooking(
     professional_id: string;
     starts_at: string;
     customer_name: string;
+    customer_email?: string;
     customer_phone?: string;
   },
 ) {

@@ -2,10 +2,11 @@ from datetime import date
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlmodel import Session
 
 from core.database import get_session
+from core.rate_limit import enforce_public_rate_limit
 from core.exceptions import NotFoundError
 from features.auth.dependencies import CurrentUser, get_current_user
 from features.availability.schemas import (
@@ -33,12 +34,14 @@ def _availability_admin(
 @router.get("/public/{slug}/slots", response_model=SlotsResponse)
 def get_slots(
     slug: str,
+    request: Request,
     tenant: Annotated[TenantContext, Depends(require_public_tenant)],
     session: Annotated[Session, Depends(get_session)],
     service_id: str = Query(...),
     day: str = Query(..., description="YYYY-MM-DD"),
     professional_id: str | None = Query(None),
 ) -> SlotsResponse:
+    enforce_public_rate_limit(request)
     try:
         parsed_day = date.fromisoformat(day)
     except ValueError:

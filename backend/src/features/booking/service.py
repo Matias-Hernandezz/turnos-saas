@@ -7,10 +7,12 @@ from core.exceptions import AppError, NotFoundError
 from core.tokens import generate_public_code
 from features.availability.slots_service import AvailabilitySlotsService
 from features.booking.repository import AppointmentRepository
+from features.booking.notifications import booking_confirmation_email
 from features.booking.schemas import BookingCreatePublic, BookingPublicRead
 from features.catalog.repository import ProfessionalRepository, ServiceRepository
 from models.appointment import Appointment
 from models.customer import Customer
+from models.tenant import Tenant
 from tenancy.context import TenantContext
 
 
@@ -71,6 +73,7 @@ class BookingService:
         customer = Customer(
             tenant_id=self.tenant.tenant_id,
             full_name=body.customer_name,
+            email=str(body.customer_email) if body.customer_email else None,
             phone=body.customer_phone,
         )
         self.session.add(customer)
@@ -97,11 +100,45 @@ class BookingService:
 
         self.session.refresh(appointment)
         assert appointment.id is not None
+
+        if body.customer_email:
+            tenant_row = self.session.get(Tenant, self.tenant.tenant_id)
+            tenant_name = tenant_row.name if tenant_row else self.tenant.slug
+            booking_confirmation_email(
+                to=str(body.customer_email),
+                tenant_name=tenant_name,
+                slug=self.tenant.slug,
+                customer_name=body.customer_name,
+                starts_at=starts_at,
+                public_code=appointment.public_code,
+            )
+
         return BookingPublicRead(
             id=str(appointment.id),
             public_code=appointment.public_code,
             status=appointment.status,
             starts_at=appointment.starts_at.isoformat(),
             ends_at=appointment.ends_at.isoformat(),
+            hold_expires_at=hold_expires.isoformat(),
+        )
+
+    def cancel_by_public_code(self, public_code: str) -> BookingPublicRead:
+        row = self.appointments.get_by_public_code(public_code)
+        if row is None:
+            raise NotFoundError("Booking not found")
+        if row.status not in ("held", "confirmed"):
+            raise AppError("Booking cannot be cancelled", code="invalid_status")
+        row.status = "cancelled"
+        self.session.add(row)
+        self.session.commit()
+        self.session.refresh(row)
+        assert row.id is not None
+        hold_expires = row.hold_expires_at or row.starts_at
+        return BookingPublicRead(
+            id=str(row.id),
+            public_code=row.public_code,
+            status=row.status,
+            starts_at=row.starts_at.isoformat(),
+            ends_at=row.ends_at.isoformat(),
             hold_expires_at=hold_expires.isoformat(),
         )

@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminLayout } from "@/app/layouts/AdminLayout";
 import { PublicLayout } from "@/app/layouts/PublicLayout";
 import { BuilderPage } from "@/features/site-builder/BuilderPage";
+import { PublicBookingPage } from "@/features/public-site/booking/PublicBookingPage";
 import { PublicSitePage } from "@/features/public-site/PublicSitePage";
 
 function AdminHome() {
@@ -15,6 +16,7 @@ export function AppRouter() {
         <Route path="/" element={<Navigate to="/admin" replace />} />
         <Route path="/t/:slug" element={<PublicLayout />}>
           <Route index element={<PublicSitePage />} />
+          <Route path="reserva/:publicCode" element={<PublicBookingPage />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminHome />} />

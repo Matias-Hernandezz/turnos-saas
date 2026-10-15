@@ -11,6 +11,14 @@ from models.appointment import Appointment
 class AppointmentRepository(TenantScopedRepository[Appointment]):
     model = Appointment
 
+    def get_by_public_code(self, public_code: str) -> Appointment | None:
+        return self.session.exec(
+            select(Appointment).where(
+                Appointment.tenant_id == self.tenant_id,
+                Appointment.public_code == public_code,
+            )
+        ).first()
+
     def has_blocking_overlap(
         self,
         *,

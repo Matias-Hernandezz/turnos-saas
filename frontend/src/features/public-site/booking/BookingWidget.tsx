@@ -33,6 +33,8 @@ export function BookingWidget({ slug }: { slug: string }) {
     setDay: setBookingDay,
     customerName,
     setCustomerName,
+    customerEmail,
+    setCustomerEmail,
     customerPhone,
     setCustomerPhone,
     booking,
@@ -138,6 +140,17 @@ export function BookingWidget({ slug }: { slug: string }) {
           <Button onClick={goBack}>Volver</Button>
           <p style={{ margin: "8px 0", fontSize: 14 }}>{formatDateTime(slot.starts_at)}</p>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8 }}>
+            Email
+            <input
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              style={{ display: "block", width: "100%", marginTop: 4, padding: 8 }}
+              autoComplete="email"
+              required
+            />
+          </label>
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8 }}>
             Nombre
             <input
               type="text"
@@ -173,7 +186,8 @@ export function BookingWidget({ slug }: { slug: string }) {
             Código: <code>{booking.public_code}</code>
           </p>
           <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>
-            Tenés hasta {formatDateTime(booking.hold_expires_at)} para completar el pago (próximamente).
+            Revisá tu email para el enlace de cancelación. Hold hasta{" "}
+            {formatDateTime(booking.hold_expires_at)}.
           </p>
         </div>
       )}

@@ -32,6 +32,7 @@ export function useBookingFlow(slug: string) {
   const [day, setDay] = useState(defaultDay);
   const [slot, setSlot] = useState<PublicSlot | null>(null);
   const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [booking, setBooking] = useState<BookingCreated | null>(null);
 
@@ -101,6 +102,10 @@ export function useBookingFlow(slug: string) {
       setError("Completá tu nombre para confirmar.");
       return;
     }
+    if (!customerEmail.trim()) {
+      setError("Ingresá un email para recibir la confirmación.");
+      return;
+    }
     setLoading(true);
     resetError();
     try {
@@ -109,6 +114,7 @@ export function useBookingFlow(slug: string) {
         professional_id: professional.id,
         starts_at: slot.starts_at,
         customer_name: customerName.trim(),
+        customer_email: customerEmail.trim(),
         customer_phone: customerPhone.trim() || undefined,
       });
       setBooking(created);
@@ -137,6 +143,8 @@ export function useBookingFlow(slug: string) {
     slot,
     customerName,
     setCustomerName,
+    customerEmail,
+    setCustomerEmail,
     customerPhone,
     setCustomerPhone,
     booking,
