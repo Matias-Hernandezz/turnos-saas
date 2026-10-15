@@ -9,6 +9,7 @@ from features.availability.slots_service import AvailabilitySlotsService
 from features.booking.repository import AppointmentRepository
 from features.booking.schemas_admin import BookingAdminCreate, BookingAdminRead, BookingAdminUpdate
 from features.catalog.repository import ProfessionalRepository, ServiceRepository
+from features.payments.service import PaymentService
 from models.appointment import Appointment
 from models.catalog import Professional, Service
 from models.customer import Customer
@@ -119,6 +120,8 @@ class BookingAdminService:
         if new_status == "cancelled":
             if row.status not in _CANCELLABLE:
                 raise AppError("Appointment cannot be cancelled", code="invalid_status")
+            assert row.id is not None
+            PaymentService(self.session, self.tenant).refund_on_cancellation(row.id)
             row.status = "cancelled"
         elif new_status == "confirmed":
             if row.status not in ("held", "pending_payment"):

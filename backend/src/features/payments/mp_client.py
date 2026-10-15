@@ -55,8 +55,9 @@ class MercadoPagoClient:
         external_reference: str,
         notification_url: str,
         back_urls: dict[str, str],
+        marketplace_fee_cents: int = 0,
     ) -> dict[str, Any]:
-        body = {
+        body: dict[str, Any] = {
             "items": [
                 {
                     "title": title,
@@ -70,10 +71,21 @@ class MercadoPagoClient:
             "back_urls": back_urls,
             "auto_return": "approved",
         }
+        if marketplace_fee_cents > 0:
+            body["marketplace_fee"] = marketplace_fee_cents / 100.0
         with httpx.Client(timeout=30.0) as client:
             resp = client.post(
                 f"{self.API_BASE}/checkout/preferences",
                 json=body,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+    def refund_payment(self, access_token: str, payment_id: str) -> dict[str, Any]:
+        with httpx.Client(timeout=30.0) as client:
+            resp = client.post(
+                f"{self.API_BASE}/v1/payments/{payment_id}/refunds",
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             resp.raise_for_status()

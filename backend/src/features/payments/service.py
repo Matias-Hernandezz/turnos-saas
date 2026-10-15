@@ -104,6 +104,7 @@ class PaymentService:
             1,
             int(service.price_cents * settings.mp_deposit_percent / 100),
         )
+        platform_fee_cents = self._platform_fee_cents(amount_cents)
 
         existing = self.session.exec(
             select(Payment).where(
@@ -143,6 +144,7 @@ class PaymentService:
                 external_reference=external_reference,
                 notification_url=notification_url,
                 back_urls=back_urls,
+                marketplace_fee_cents=platform_fee_cents,
             )
             preference_id = pref["id"]
             init_point = pref.get("init_point") or pref.get("sandbox_init_point")
@@ -152,6 +154,7 @@ class PaymentService:
             appointment_id=row.id,
             mp_preference_id=preference_id,
             amount_cents=amount_cents,
+            platform_fee_cents=platform_fee_cents,
             status="pending",
         )
         self.session.add(payment)
@@ -166,6 +169,39 @@ class PaymentService:
             "init_point": init_point,
             "amount_cents": amount_cents,
         }
+
+    def refund_on_cancellation(self, appointment_id: UUID) -> None:
+        payment_row = self.session.exec(
+            select(Payment).where(
+                Payment.tenant_id == self.tenant.tenant_id,
+                Payment.appointment_id == appointment_id,
+            )
+        ).first()
+        if payment_row is None:
+            return
+        if payment_row.status == "refunded":
+            return
+        settings = get_settings()
+        if payment_row.status == "approved" and payment_row.mp_payment_id:
+            if settings.app_env == "test" or not settings.mp_client_id:
+                payment_row.status = "refunded"
+            else:
+                access = self._access_token()
+                self.mp.refund_payment(access, payment_row.mp_payment_id)
+                payment_row.status = "refunded"
+            self.session.add(payment_row)
+            self.session.commit()
+        elif payment_row.status == "pending":
+            payment_row.status = "cancelled"
+            self.session.add(payment_row)
+            self.session.commit()
+
+    @staticmethod
+    def _platform_fee_cents(amount_cents: int) -> int:
+        settings = get_settings()
+        if settings.mp_platform_fee_percent <= 0:
+            return 0
+        return max(0, int(amount_cents * settings.mp_platform_fee_percent / 100))
 
     def apply_payment_notification(
         self,

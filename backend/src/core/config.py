@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     mp_client_secret: str | None = None
     mp_redirect_uri: str = "http://localhost:8000/api/admin/payments/mp/callback"
     mp_deposit_percent: int = 100
+    mp_platform_fee_percent: int = 0
     mp_skip_webhook_signature_in_test: bool = True
 
     @property

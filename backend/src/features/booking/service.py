@@ -8,6 +8,7 @@ from core.tokens import generate_public_code
 from features.availability.slots_service import AvailabilitySlotsService
 from features.booking.repository import AppointmentRepository
 from features.booking.notifications import booking_confirmation_email
+from features.payments.service import PaymentService
 from features.booking.schemas import BookingCreatePublic, BookingPublicRead
 from features.catalog.repository import ProfessionalRepository, ServiceRepository
 from models.appointment import Appointment
@@ -126,8 +127,10 @@ class BookingService:
         row = self.appointments.get_by_public_code(public_code)
         if row is None:
             raise NotFoundError("Booking not found")
-        if row.status not in ("held", "confirmed"):
+        if row.status not in ("held", "confirmed", "pending_payment"):
             raise AppError("Booking cannot be cancelled", code="invalid_status")
+        assert row.id is not None
+        PaymentService(self.session, self.tenant).refund_on_cancellation(row.id)
         row.status = "cancelled"
         self.session.add(row)
         self.session.commit()

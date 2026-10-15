@@ -21,11 +21,21 @@
 - `MP_CLIENT_ID`, `MP_CLIENT_SECRET`, `MP_REDIRECT_URI` (callback admin).
 - Webhook URL: `{API_PUBLIC_BASE_URL}/webhooks/mercadopago/tenant-payments` + secret en panel MP.
 
-## Pendiente post-spike
+## Comisión plataforma
 
-- Split / comisión plataforma.
+- `MP_PLATFORM_FEE_PERCENT` (0 = desactivado) → `marketplace_fee` en la preferencia MP.
+- Monto persistido en `payment.platform_fee_cents`.
+
+## Cancelación y reembolso
+
+- Cancelar turno (`held`, `pending_payment`, `confirmed`) dispara `refund_on_cancellation`.
+- Pago `approved` → reembolso total vía API MP (simulado en test).
+- Pago `pending` → `cancelled` sin llamada a MP.
+
+## Pendiente
+
 - Refresh token automático.
-- Reembolsos al cancelar turno.
+- Reembolso parcial / políticas por negocio.
 - UI admin “Conectar MP” y manejo de desconexión.
 
 Ver [../mercado-pago.md](../mercado-pago.md).

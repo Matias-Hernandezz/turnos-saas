@@ -13,6 +13,7 @@ class Payment(UUIDPrimaryKeyMixin, TimestampMixin, TenantScopedMixin, table=True
     mp_preference_id: str | None = Field(default=None, index=True)
     mp_payment_id: str | None = Field(default=None, index=True)
     amount_cents: int
+    platform_fee_cents: int = Field(default=0, ge=0)
     status: str = Field(default="pending", max_length=32)
 
 

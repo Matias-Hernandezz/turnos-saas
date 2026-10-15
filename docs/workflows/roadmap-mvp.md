@@ -69,13 +69,14 @@ Landing fija (sin builder); hold 15 min activo.
 - Suscripción al SaaS **manual** (transferencia) hasta fase 8
 - [x] **Spike Mercado Pago:** OAuth tenant, webhook sandbox, checkout seña — ver [spike-mercadopago.md](./spike-mercadopago.md)
 
-## Fase 5 — Mercado Pago (seña) (en curso)
+## Fase 5 — Mercado Pago (seña) (casi completa — validar en sandbox)
 
 - [x] OAuth conectar cuenta tenant + tokens cifrados
 - [x] Preferencia / checkout público por `public_code`
 - [x] Webhook tenant-payments (firma + idempotencia) → confirmar turno
-- [ ] Split / comisión marketplace
-- [ ] Reembolsos y edge cases cancelación
+- [x] Split / comisión marketplace (`marketplace_fee` + `MP_PLATFORM_FEE_PERCENT`)
+- [x] Reembolsos al cancelar turno (pago aprobado)
+- [ ] Políticas reembolso parcial / edge cases avanzados
 - Ver [../mercado-pago.md](../mercado-pago.md)
 
 ## Fase 6a — Plantilla + tema
