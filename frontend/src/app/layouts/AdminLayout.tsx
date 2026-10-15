@@ -7,6 +7,7 @@ export function AdminLayout() {
         <strong>Turnos SaaS</strong>
         <ul style={{ listStyle: "none", padding: 0 }}>
           <li><Link to="/admin">Agenda</Link></li>
+          <li><Link to="/admin/bloqueos">Bloqueos</Link></li>
           <li><Link to="/admin/site-builder">Sitio</Link></li>
         </ul>
       </nav>

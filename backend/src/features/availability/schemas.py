@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import date, time
 
 from pydantic import BaseModel, Field
 
@@ -34,3 +34,28 @@ class SlotsResponse(BaseModel):
     day: str
     service_id: str
     slots: list[SlotRead]
+
+
+class TimeOffCreate(BaseModel):
+    professional_id: str | None = Field(
+        default=None,
+        description="Null = bloqueo para todo el negocio",
+    )
+    start_date: date
+    end_date: date
+    reason: str | None = Field(default=None, max_length=255)
+
+
+class TimeOffRead(BaseModel):
+    id: str
+    professional_id: str | None
+    start_date: date
+    end_date: date
+    reason: str | None
+
+
+class TimeOffUpdate(BaseModel):
+    professional_id: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    reason: str | None = Field(default=None, max_length=255)

@@ -10,6 +10,7 @@ from core.exceptions import AppError, NotFoundError
 from features.auth.dependencies import CurrentUser, get_current_user
 from features.booking.admin_service import BookingAdminService
 from features.booking.schemas_admin import (
+    BookingAdminCreate,
     BookingAdminListResponse,
     BookingAdminRead,
     BookingAdminUpdate,
@@ -25,6 +26,22 @@ def _admin_bookings(
     tenant: Annotated[TenantContext, Depends(get_current_tenant)],
 ) -> BookingAdminService:
     return BookingAdminService(session, tenant)
+
+
+@router.post("", response_model=BookingAdminRead, status_code=status.HTTP_201_CREATED)
+def create_booking(
+    body: BookingAdminCreate,
+    _user: Annotated[CurrentUser, Depends(get_current_user)],
+    svc: Annotated[BookingAdminService, Depends(_admin_bookings)],
+) -> BookingAdminRead:
+    try:
+        return svc.create_manual(body)
+    except AppError as exc:
+        if exc.code == "slot_unavailable":
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=exc.message)
+        if exc.code == "validation":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message)
 
 
 @router.get("", response_model=BookingAdminListResponse)

@@ -4,9 +4,17 @@ from sqlmodel import Session
 
 from core.exceptions import NotFoundError
 from features.availability.repository import WorkingHoursRepository
-from features.availability.schemas import WorkingHoursCreate, WorkingHoursRead, WorkingHoursUpdate
+from features.availability.schemas import (
+    TimeOffCreate,
+    TimeOffRead,
+    TimeOffUpdate,
+    WorkingHoursCreate,
+    WorkingHoursRead,
+    WorkingHoursUpdate,
+)
+from features.availability.time_off_repository import TimeOffRepository
 from features.catalog.repository import ProfessionalRepository
-from models.availability import WorkingHours
+from models.availability import TimeOff, WorkingHours
 from tenancy.context import TenantContext
 
 
@@ -15,6 +23,7 @@ class AvailabilityAdminService:
         self.session = session
         self.tenant = tenant
         self.hours = WorkingHoursRepository(session, tenant.tenant_id)
+        self.time_off = TimeOffRepository(session, tenant.tenant_id)
         self.professionals = ProfessionalRepository(session, tenant.tenant_id)
 
     def list_working_hours(self, professional_id: UUID | None = None) -> list[WorkingHoursRead]:
@@ -59,6 +68,73 @@ class AvailabilityAdminService:
         entity = self.hours.get_by_id(hours_id)
         self.session.delete(entity)
         self.session.commit()
+
+    def list_time_off(self, professional_id: UUID | None = None) -> list[TimeOffRead]:
+        rows = self.time_off.list_all(limit=500)
+        if professional_id is not None:
+            rows = [
+                r
+                for r in rows
+                if r.professional_id == professional_id or r.professional_id is None
+            ]
+        return [self._time_off_read(r) for r in rows]
+
+    def create_time_off(self, body: TimeOffCreate) -> TimeOffRead:
+        if body.end_date < body.start_date:
+            raise ValueError("end_date must be on or after start_date")
+        pro_id: UUID | None = None
+        if body.professional_id:
+            pro_id = UUID(body.professional_id)
+            self.professionals.get_by_id(pro_id)
+        entity = TimeOff(
+            tenant_id=self.tenant.tenant_id,
+            professional_id=pro_id,
+            start_date=body.start_date,
+            end_date=body.end_date,
+            reason=body.reason,
+        )
+        saved = self.time_off.add(entity)
+        self.session.commit()
+        self.session.refresh(saved)
+        return self._time_off_read(saved)
+
+    def update_time_off(self, time_off_id: UUID, body: TimeOffUpdate) -> TimeOffRead:
+        entity = self.time_off.get_by_id(time_off_id)
+        if body.professional_id is not None:
+            if body.professional_id == "":
+                entity.professional_id = None
+            else:
+                pro_id = UUID(body.professional_id)
+                self.professionals.get_by_id(pro_id)
+                entity.professional_id = pro_id
+        if body.start_date is not None:
+            entity.start_date = body.start_date
+        if body.end_date is not None:
+            entity.end_date = body.end_date
+        if body.reason is not None:
+            entity.reason = body.reason
+        if entity.end_date < entity.start_date:
+            raise ValueError("end_date must be on or after start_date")
+        self.session.add(entity)
+        self.session.commit()
+        self.session.refresh(entity)
+        return self._time_off_read(entity)
+
+    def delete_time_off(self, time_off_id: UUID) -> None:
+        entity = self.time_off.get_by_id(time_off_id)
+        self.session.delete(entity)
+        self.session.commit()
+
+    @staticmethod
+    def _time_off_read(row: TimeOff) -> TimeOffRead:
+        assert row.id is not None
+        return TimeOffRead(
+            id=str(row.id),
+            professional_id=str(row.professional_id) if row.professional_id else None,
+            start_date=row.start_date,
+            end_date=row.end_date,
+            reason=row.reason,
+        )
 
     @staticmethod
     def _read(row: WorkingHours) -> WorkingHoursRead:

@@ -12,6 +12,9 @@ from features.auth.dependencies import CurrentUser, get_current_user
 from features.availability.schemas import (
     SlotRead,
     SlotsResponse,
+    TimeOffCreate,
+    TimeOffRead,
+    TimeOffUpdate,
     WorkingHoursCreate,
     WorkingHoursRead,
     WorkingHoursUpdate,
@@ -117,3 +120,57 @@ def delete_working_hours(
         svc.delete_working_hours(hours_id)
     except NotFoundError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Working hours not found")
+
+
+@router.get("/admin/availability/time-off", response_model=list[TimeOffRead])
+def list_time_off(
+    _user: Annotated[CurrentUser, Depends(get_current_user)],
+    svc: Annotated[AvailabilityAdminService, Depends(_availability_admin)],
+    professional_id: UUID | None = Query(None),
+) -> list[TimeOffRead]:
+    return svc.list_time_off(professional_id)
+
+
+@router.post(
+    "/admin/availability/time-off",
+    response_model=TimeOffRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_time_off(
+    body: TimeOffCreate,
+    _user: Annotated[CurrentUser, Depends(get_current_user)],
+    svc: Annotated[AvailabilityAdminService, Depends(_availability_admin)],
+) -> TimeOffRead:
+    try:
+        return svc.create_time_off(body)
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Professional not found")
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
+@router.patch("/admin/availability/time-off/{time_off_id}", response_model=TimeOffRead)
+def update_time_off(
+    time_off_id: UUID,
+    body: TimeOffUpdate,
+    _user: Annotated[CurrentUser, Depends(get_current_user)],
+    svc: Annotated[AvailabilityAdminService, Depends(_availability_admin)],
+) -> TimeOffRead:
+    try:
+        return svc.update_time_off(time_off_id, body)
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Time off not found")
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
+@router.delete("/admin/availability/time-off/{time_off_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_time_off(
+    time_off_id: UUID,
+    _user: Annotated[CurrentUser, Depends(get_current_user)],
+    svc: Annotated[AvailabilityAdminService, Depends(_availability_admin)],
+) -> None:
+    try:
+        svc.delete_time_off(time_off_id)
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Time off not found")

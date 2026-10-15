@@ -63,8 +63,8 @@ Landing fija (sin builder); hold 15 min activo.
 
 - [x] API admin: listar turnos por rango (semana) + detalle + cancelar/confirmar
 - [x] Vista admin semana mínima (HTML/CSS) + login
-- [ ] Bloqueos / excepciones de agenda
-- [ ] CRUD crear turno manual desde admin
+- [x] Bloqueos / excepciones de agenda
+- [x] CRUD crear turno manual desde admin
 - **Salir a probar con un negocio real** (ej. peluquería) antes de MP/builder
 - Suscripción al SaaS **manual** (transferencia) hasta fase 8
 - **Spike Mercado Pago en paralelo:** OAuth tenant, webhook sandbox, decisión split/marketplace

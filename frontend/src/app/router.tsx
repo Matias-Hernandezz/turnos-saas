@@ -3,6 +3,7 @@ import { AdminLayout } from "@/app/layouts/AdminLayout";
 import { PublicLayout } from "@/app/layouts/PublicLayout";
 import { AgendaPage } from "@/features/admin/AgendaPage";
 import { LoginPage } from "@/features/admin/LoginPage";
+import { TimeOffPage } from "@/features/admin/TimeOffPage";
 import { BuilderPage } from "@/features/site-builder/BuilderPage";
 import { PublicBookingPage } from "@/features/public-site/booking/PublicBookingPage";
 import { PublicSitePage } from "@/features/public-site/PublicSitePage";
@@ -19,6 +20,7 @@ export function AppRouter() {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AgendaPage />} />
+          <Route path="bloqueos" element={<TimeOffPage />} />
           <Route path="site-builder" element={<BuilderPage />} />
         </Route>
         <Route path="/super-admin" element={<p>Super admin — pendiente</p>} />

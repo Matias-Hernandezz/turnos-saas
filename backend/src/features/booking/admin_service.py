@@ -1,11 +1,14 @@
-from datetime import date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from uuid import UUID
 
 from sqlmodel import Session
 
 from core.exceptions import AppError, NotFoundError
+from core.tokens import generate_public_code
+from features.availability.slots_service import AvailabilitySlotsService
 from features.booking.repository import AppointmentRepository
-from features.booking.schemas_admin import BookingAdminRead, BookingAdminUpdate
+from features.booking.schemas_admin import BookingAdminCreate, BookingAdminRead, BookingAdminUpdate
+from features.catalog.repository import ProfessionalRepository, ServiceRepository
 from models.appointment import Appointment
 from models.catalog import Professional, Service
 from models.customer import Customer
@@ -19,6 +22,75 @@ class BookingAdminService:
         self.session = session
         self.tenant = tenant
         self.appointments = AppointmentRepository(session, tenant.tenant_id)
+        self.services = ServiceRepository(session, tenant.tenant_id)
+        self.professionals = ProfessionalRepository(session, tenant.tenant_id)
+
+    def create_manual(self, body: BookingAdminCreate) -> BookingAdminRead:
+        service_id = UUID(body.service_id)
+        professional_id = UUID(body.professional_id)
+        try:
+            starts_at = datetime.fromisoformat(body.starts_at.replace("Z", "+00:00")).replace(
+                tzinfo=None
+            )
+        except ValueError:
+            raise AppError("Invalid starts_at", code="validation")
+
+        service = self.services.get_by_id(service_id)
+        self.professionals.get_by_id(professional_id)
+        ends_at = starts_at + timedelta(minutes=service.duration_minutes)
+
+        slots_svc = AvailabilitySlotsService(self.session, self.tenant.tenant_id)
+        day = starts_at.date()
+        available = slots_svc.list_slots(
+            service_id=service_id,
+            day=day,
+            professional_id=professional_id,
+        )
+        slot_ok = any(
+            s["professional_id"] == str(professional_id)
+            and datetime.fromisoformat(s["starts_at"]) == starts_at
+            for s in available
+        )
+        if not slot_ok:
+            raise AppError("Slot not available", code="slot_unavailable")
+
+        now = datetime.now(UTC).replace(tzinfo=None)
+        if self.appointments.has_blocking_overlap(
+            professional_id=professional_id,
+            starts_at=starts_at,
+            ends_at=ends_at,
+            now=now,
+        ):
+            raise AppError("Slot not available", code="slot_unavailable")
+
+        customer = Customer(
+            tenant_id=self.tenant.tenant_id,
+            full_name=body.customer_name,
+            email=str(body.customer_email) if body.customer_email else None,
+            phone=body.customer_phone,
+        )
+        self.session.add(customer)
+        self.session.flush()
+
+        appointment = Appointment(
+            tenant_id=self.tenant.tenant_id,
+            service_id=service_id,
+            professional_id=professional_id,
+            customer_id=customer.id,
+            starts_at=starts_at,
+            ends_at=ends_at,
+            status="confirmed",
+            public_code=generate_public_code(),
+            hold_expires_at=None,
+        )
+        self.session.add(appointment)
+        try:
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise AppError("Slot not available", code="slot_unavailable")
+        self.session.refresh(appointment)
+        return self._to_read(appointment)
 
     def list_in_range(
         self,

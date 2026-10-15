@@ -57,6 +57,29 @@ def test_admin_lists_booking_in_week(client):
     assert appointment_id in ids
 
 
+def test_admin_create_manual_booking(client):
+    headers, _appointment_id, slug = _setup_with_booking(client, slug="admin-manual")
+    service_id = client.get("/api/admin/catalog/services", headers=headers).json()[0]["id"]
+    pro_id = client.get("/api/admin/catalog/professionals", headers=headers).json()[0]["id"]
+    slots = client.get(
+        f"/api/public/{slug}/slots",
+        params={"service_id": service_id, "day": "2026-06-01", "professional_id": pro_id},
+    ).json()["slots"]
+    assert len(slots) >= 1
+    created = client.post(
+        "/api/admin/bookings",
+        headers=headers,
+        json={
+            "service_id": service_id,
+            "professional_id": pro_id,
+            "starts_at": slots[0]["starts_at"],
+            "customer_name": "Manual Cliente",
+        },
+    )
+    assert created.status_code == 201
+    assert created.json()["status"] == "confirmed"
+
+
 def test_admin_cancel_booking(client):
     headers, appointment_id, _slug = _setup_with_booking(client, slug="admin-cancel")
     patch = client.patch(
