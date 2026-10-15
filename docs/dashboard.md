@@ -34,8 +34,10 @@ Indicadores sugeridos:
 
 | Fase | Alcance |
 |------|---------|
-| MVP | Agenda simple, CRUD esencial, confirmar/cancelar turnos |
+| MVP | Vista semana, CRUD esencial, confirmar/cancelar turnos |
 | Post-MVP | Métricas, fichas de cliente, exportaciones |
-| Con planes | Feature flags limitan profundidad según plan |
+| Con planes | **Misma navegación en todos los planes**; `require_feature` bloquea o limita módulos (candado + upgrade en UI) |
+
+Detalle UX: [workflows/ux-dashboard-y-cliente.md](./workflows/ux-dashboard-y-cliente.md).
 
 Orden de implementación: [roadmap-mvp.md](./roadmap-mvp.md).

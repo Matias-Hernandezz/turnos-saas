@@ -10,7 +10,7 @@
 | Profesionales | 1 | Hasta 5 | Ilimitados |
 | Mercado Pago / seña | No | Sí | Sí |
 | Página pública | Plantilla fija + logo/colores | + Secciones reordenables | Builder completo + dominio propio |
-| Dashboard | Agenda simple | Métricas básicas | Métricas completas, clientes, exportar |
+| Dashboard | Mismo panel; métricas/clientes/export **bloqueados** | Módulos desbloqueados según fila | Completo + export |
 | Recordatorios WhatsApp / email | No | Email | Email + WhatsApp |
 | Soporte | Email | Email | Prioritario |
 

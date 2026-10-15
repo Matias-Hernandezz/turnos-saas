@@ -53,7 +53,16 @@ export function useBookingFlow(slug: string) {
     setLoading(true);
     resetError();
     fetchPublicProfessionals(slug)
-      .then(setProfessionals)
+      .then((list) => {
+        setProfessionals(list);
+        if (list.length === 1) {
+          setProfessional(list[0]);
+          setSlot(null);
+          setStep("slot");
+        } else if (list.length === 0) {
+          setError("No hay profesionales disponibles.");
+        }
+      })
       .catch(() => setError("No pudimos cargar los profesionales."))
       .finally(() => setLoading(false));
   }, [slug, step, resetError]);
@@ -93,7 +102,9 @@ export function useBookingFlow(slug: string) {
   const goBack = () => {
     resetError();
     if (step === "professional") setStep("service");
-    else if (step === "slot") setStep("professional");
+    else if (step === "slot") {
+      setStep(professionals.length === 1 ? "service" : "professional");
+    }
     else if (step === "details") setStep("slot");
   };
 
