@@ -23,12 +23,12 @@ Prioridad: **MVP de reservas confiable** antes del builder visual y analítica a
 
 ---
 
-## Fase 0 — Seguridad (hecho / en curso)
+## Fase 0 — Seguridad (completa)
 
 - [x] Estructura repo + `docs/seguridad/`
 - [x] `TenantScopedRepository` + `tests/tenancy/test_isolation.py`
 - [x] CI mínimo (pytest en GitHub Actions)
-- [ ] Secret scan en CI — ver [../seguridad/checklist-antes-de-merge.md](../seguridad/checklist-antes-de-merge.md)
+- [x] Secret scan en CI — ver [../seguridad/checklist-antes-de-merge.md](../seguridad/checklist-antes-de-merge.md)
 
 ## Fase 1 — Fundación (completa)
 
@@ -59,9 +59,12 @@ Referencias: [../arquitectura-multi-tenant.md](../arquitectura-multi-tenant.md),
 
 Landing fija (sin builder); hold 15 min activo.
 
-## Fase 4 — Agenda admin + piloto
+## Fase 4 — Agenda admin + piloto (en curso)
 
-- Calendario / listado, CRUD turnos, cancelaciones
+- [x] API admin: listar turnos por rango (semana) + detalle + cancelar/confirmar
+- [x] Vista admin semana mínima (HTML/CSS) + login
+- [ ] Bloqueos / excepciones de agenda
+- [ ] CRUD crear turno manual desde admin
 - **Salir a probar con un negocio real** (ej. peluquería) antes de MP/builder
 - Suscripción al SaaS **manual** (transferencia) hasta fase 8
 - **Spike Mercado Pago en paralelo:** OAuth tenant, webhook sandbox, decisión split/marketplace

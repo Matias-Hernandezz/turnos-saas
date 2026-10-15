@@ -11,6 +11,22 @@ from models.appointment import Appointment
 class AppointmentRepository(TenantScopedRepository[Appointment]):
     model = Appointment
 
+    def list_between(
+        self,
+        range_start: datetime,
+        range_end: datetime,
+        professional_id: UUID | None = None,
+    ) -> list[Appointment]:
+        stmt = select(Appointment).where(
+            Appointment.tenant_id == self.tenant_id,
+            Appointment.starts_at < range_end,
+            Appointment.ends_at > range_start,
+        )
+        if professional_id is not None:
+            stmt = stmt.where(Appointment.professional_id == professional_id)
+        stmt = stmt.order_by(Appointment.starts_at)  # type: ignore[arg-type]
+        return list(self.session.exec(stmt).all())
+
     def get_by_public_code(self, public_code: str) -> Appointment | None:
         return self.session.exec(
             select(Appointment).where(

@@ -1,0 +1,9 @@
+title = "turnos-saas gitleaks"
+
+[allowlist]
+description = "Test fixtures and documented placeholders"
+paths = [
+  '''\.github/workflows/ci\.yml''',
+  '''backend/tests/''',
+  '''\.env\.example''',
+]
