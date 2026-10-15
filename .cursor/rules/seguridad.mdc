@@ -1,0 +1,13 @@
+---
+description: Reglas de seguridad Turnos SaaS (multi-tenant, PII, pagos)
+alwaysApply: true
+---
+
+Antes de cambiar backend o APIs, cumplir `docs/seguridad/reglas-inviolables.md`.
+
+- Nunca aceptar `tenant_id` del cliente como fuente de verdad; usar `TenancyContext` / JWT + membership.
+- Todo repository de datos de negocio extiende `TenantScopedRepository` y filtra por tenant.
+- Rutas admin: `get_current_user` + `get_current_tenant`.
+- Webhooks MP: verificar firma; idempotencia.
+- PII fuera de logs; `public_code` con CSPRNG (`core.tokens.generate_public_code`).
+- Agregar o actualizar tests en `tests/tenancy/` al tocar acceso a datos.
