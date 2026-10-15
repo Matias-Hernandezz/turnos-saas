@@ -15,6 +15,7 @@ Documentación de producto y arquitectura del proyecto. Los planes comerciales d
 | [dashboard.md](./dashboard.md) | Agenda, métricas y gestión (plan avanzado) |
 | [workflows/roadmap-mvp.md](./workflows/roadmap-mvp.md) | Orden sugerido de construcción |
 | [workflows/mejora-roadmap.md](./workflows/mejora-roadmap.md) | Notas de refinamiento del roadmap |
+| [workflows/agent-loop.md](./workflows/agent-loop.md) | Ciclo autónomo agente (roadmap → test → push) |
 | [estructura.md](./estructura.md) | Árbol de carpetas backend/frontend |
 | [seguridad/README.md](./seguridad/README.md) | **Reglas de seguridad pre-código** (límites de confianza, MUST NOT, checklists) |
 

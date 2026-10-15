@@ -27,25 +27,35 @@ Prioridad: **MVP de reservas confiable** antes del builder visual y analítica a
 
 - [x] Estructura repo + `docs/seguridad/`
 - [x] `TenantScopedRepository` + `tests/tenancy/test_isolation.py`
-- [ ] CI mínimo (pytest, secret scan) — ver [../seguridad/checklist-antes-de-merge.md](../seguridad/checklist-antes-de-merge.md)
+- [x] CI mínimo (pytest en GitHub Actions)
+- [ ] Secret scan en CI — ver [../seguridad/checklist-antes-de-merge.md](../seguridad/checklist-antes-de-merge.md)
 
-## Fase 1 — Fundación (en curso)
+## Fase 1 — Fundación (completa)
 
 - [x] Registro negocio + owner (`POST /api/onboarding/register`) + login JWT
 - [x] Seed planes `basic` / `pro` / `max` + `feature_flags` en tenant
 - [x] CRUD servicios y profesionales (límite `max_professionals` en basic)
 - [x] CRUD horarios de atención (`/admin/availability/working-hours`)
 - [x] `require_feature(...)` en rutas premium (ej. pagos)
-- [ ] Migración Alembic inicial en repo (deploy)
+- [x] Migración Alembic inicial (`20260315_0001`) + EXCLUDE en PostgreSQL
 - [x] Tests onboarding + catálogo cross-tenant
 
 Referencias: [../arquitectura-multi-tenant.md](../arquitectura-multi-tenant.md), [../seguridad/limites-de-confianza.md](../seguridad/limites-de-confianza.md).
 
-## Fase 2 — Motor de disponibilidad (crítico)
+## Fase 2 — Motor de disponibilidad (completa)
 
-- `slot_calculator` + datos reales (horarios, time off, turnos)
-- **Anti doble-reserva:** constraint DB (ej. `EXCLUDE` / overlap) + test de dos requests concurrentes al mismo slot
-- Tests automatizados amplios
+- [x] `GET /public/{slug}/slots` con horarios + turnos bloqueantes
+- [x] `POST /public/{slug}/bookings` (hold 15 min) + chequeo de solape en app
+- [x] Constraint `EXCLUDE` en PostgreSQL (migración)
+- [x] Test: segundo booking mismo slot → 409
+- [x] Test concurrencia lógica (dos sesiones DB + HTTP 409; EXCLUDE en Postgres)
+- [x] Job expirar holds (`booking/jobs.py` + `workers.tasks.run_expire_holds`)
+
+## Fase 3 — Página pública + reserva (en curso)
+
+- [ ] Flujo front: servicio → profesional → slot → datos → confirmación
+- [ ] Email transaccional mínimo (confirmación + link cancelación con `public_code`)
+- [ ] Anti-abuso: rate limit en reserva pública y consulta de slots
 
 ## Fase 3 — Página fública + reserva
 

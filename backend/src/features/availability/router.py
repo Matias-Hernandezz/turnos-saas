@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated
 from uuid import UUID
 
@@ -7,8 +8,15 @@ from sqlmodel import Session
 from core.database import get_session
 from core.exceptions import NotFoundError
 from features.auth.dependencies import CurrentUser, get_current_user
-from features.availability.schemas import WorkingHoursCreate, WorkingHoursRead, WorkingHoursUpdate
+from features.availability.schemas import (
+    SlotRead,
+    SlotsResponse,
+    WorkingHoursCreate,
+    WorkingHoursRead,
+    WorkingHoursUpdate,
+)
 from features.availability.service import AvailabilityAdminService
+from features.availability.slots_service import AvailabilitySlotsService
 from tenancy.context import TenantContext
 from tenancy.dependencies import get_current_tenant, require_public_tenant
 
@@ -22,21 +30,36 @@ def _availability_admin(
     return AvailabilityAdminService(session, tenant)
 
 
-@router.get("/public/{slug}/slots")
+@router.get("/public/{slug}/slots", response_model=SlotsResponse)
 def get_slots(
     slug: str,
-    _tenant: Annotated[TenantContext, Depends(require_public_tenant)],
+    tenant: Annotated[TenantContext, Depends(require_public_tenant)],
+    session: Annotated[Session, Depends(get_session)],
     service_id: str = Query(...),
     day: str = Query(..., description="YYYY-MM-DD"),
     professional_id: str | None = Query(None),
-) -> dict:
-    return {
-        "slug": slug,
-        "service_id": service_id,
-        "day": day,
-        "professional_id": professional_id,
-        "slots": [],
-    }
+) -> SlotsResponse:
+    try:
+        parsed_day = date.fromisoformat(day)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid day")
+    svc = AvailabilitySlotsService(session, tenant.tenant_id)
+    try:
+        pro_uuid = UUID(professional_id) if professional_id else None
+        slots = svc.list_slots(
+            service_id=UUID(service_id),
+            day=parsed_day,
+            professional_id=pro_uuid,
+        )
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid id")
+    return SlotsResponse(
+        day=day,
+        service_id=service_id,
+        slots=[SlotRead(**s) for s in slots],
+    )
 
 
 @router.get("/admin/availability/working-hours", response_model=list[WorkingHoursRead])

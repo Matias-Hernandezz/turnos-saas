@@ -1,0 +1,29 @@
+---
+description: Loop autónomo de desarrollo Turnos SaaS (roadmap → implementar → verificar → push)
+alwaysApply: true
+---
+
+## Ciclo obligatorio (cada sesión de trabajo)
+
+1. **Leer** `docs/workflows/roadmap-mvp.md` y localizar la **primera tarea sin marcar** `[x]` en la fase más baja incompleta.
+2. **Implementar** solo esa tarea (y lo mínimo para dejarla usable). Respetar `docs/seguridad/reglas-inviolables.md`.
+3. **Verificar**: `cd backend && pytest -q` (con `JWT_SECRET`, `DATABASE_URL=sqlite://`, `APP_ENV=test`). Si tocaste front, `npm run build` en `frontend/`.
+4. **Actualizar roadmap**: marcar `[x]` lo completado; si abrís fase nueva, ajustar checklist.
+5. **Commit y push** a `origin/main` cuando el usuario pida trabajo autónomo o al cerrar un ciclo exitoso:
+   - Mensaje claro en español o inglés técnico, sin trailers ni marcas de herramientas.
+   - **Prohibido**: `Co-authored-by`, `Made-with: Cursor`, o firmas de agente en commits.
+   - No commitear `.env` ni secretos.
+6. **Reiniciar** el ciclo desde el paso 1.
+
+## Prioridad de fases
+
+Seguir orden del roadmap: 0 → 1 → 2 → 3 → … No saltar fases salvo dependencia explícita documentada.
+
+## Alcance
+
+- Un ciclo = una o pocas tareas relacionadas del roadmap, no refactors masivos.
+- Si pytest falla, no hacer push hasta corregir.
+
+## Referencia
+
+Detalle en `docs/workflows/agent-loop.md`.
