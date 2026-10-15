@@ -8,6 +8,7 @@ export function AdminLayout() {
         <ul style={{ listStyle: "none", padding: 0 }}>
           <li><Link to="/admin">Agenda</Link></li>
           <li><Link to="/admin/bloqueos">Bloqueos</Link></li>
+          <li><Link to="/admin/pagos">Pagos (MP)</Link></li>
           <li><Link to="/admin/site-builder">Sitio</Link></li>
         </ul>
       </nav>

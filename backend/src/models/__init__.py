@@ -3,7 +3,7 @@ from models.availability import TimeOff, WorkingHours
 from models.catalog import Professional, Service
 from models.customer import Customer
 from models.page_config import PageConfig
-from models.payment import MercadoPagoConnection, Payment
+from models.payment import MercadoPagoConnection, MpWebhookEvent, Payment
 from models.plan import Plan
 from models.review import Review
 from models.tenant import Tenant
@@ -13,6 +13,7 @@ __all__ = [
     "Appointment",
     "Customer",
     "MercadoPagoConnection",
+    "MpWebhookEvent",
     "PageConfig",
     "Payment",
     "Plan",

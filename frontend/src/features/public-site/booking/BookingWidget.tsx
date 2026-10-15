@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/shared/ui/Button";
+import { createBookingCheckout } from "@/features/public-site/booking/publicApi";
 import { useBookingFlow } from "@/features/public-site/booking/useBookingFlow";
+import { useState } from "react";
 
 function formatSlotTime(iso: string) {
   const d = new Date(iso);
@@ -19,6 +21,7 @@ function formatDateTime(iso: string) {
 }
 
 export function BookingWidget({ slug }: { slug: string }) {
+  const [payError, setPayError] = useState<string | null>(null);
   const flow = useBookingFlow(slug);
   const {
     step,
@@ -178,6 +181,9 @@ export function BookingWidget({ slug }: { slug: string }) {
 
       {step === "confirm" && booking && (
         <div style={{ marginTop: 8 }}>
+          {payError && (
+            <p style={{ color: "#8b0000", fontSize: 13 }} role="alert">{payError}</p>
+          )}
           <p style={{ margin: 0, fontWeight: 600 }}>¡Listo!</p>
           <p style={{ margin: "8px 0", fontSize: 14 }}>
             Turno: {formatDateTime(booking.starts_at)}
@@ -189,6 +195,20 @@ export function BookingWidget({ slug }: { slug: string }) {
             Revisá tu email para el enlace de cancelación. Hold hasta{" "}
             {formatDateTime(booking.hold_expires_at)}.
           </p>
+          <button
+            type="button"
+            style={{ marginTop: 8, padding: "8px 12px" }}
+            onClick={() => {
+              setPayError(null);
+              createBookingCheckout(slug, booking.public_code)
+                .then((r) => {
+                  window.location.href = r.init_point;
+                })
+                .catch(() => setPayError("Pago no disponible para este negocio."));
+            }}
+          >
+            Pagar seña con Mercado Pago
+          </button>
         </div>
       )}
     </aside>

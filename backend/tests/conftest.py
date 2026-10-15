@@ -3,6 +3,8 @@ import os
 os.environ.setdefault("JWT_SECRET", "test-jwt-secret-key-32chars-min")
 os.environ.setdefault("DATABASE_URL", "sqlite://")
 os.environ.setdefault("APP_ENV", "test")
+os.environ.setdefault("FERNET_KEY", "52__lssIZJzbQEORyYVtc-ne4vFYFGAZyDgs0rvD3-U=")
+os.environ.setdefault("MP_WEBHOOK_SECRET_TENANT_PAYMENTS", "test-webhook-secret")
 
 from core.config import get_settings
 

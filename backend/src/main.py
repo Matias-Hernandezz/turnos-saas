@@ -17,6 +17,7 @@ from features.catalog.router import router as catalog_router
 from features.catalog.router_public import router as catalog_public_router
 from features.customers.router import router as customers_router
 from features.payments.router import router as payments_router
+from features.payments.router_public import router as payments_public_router
 from features.payments.webhook import router as payments_webhook_router
 from features.reviews.router import router as reviews_router
 from features.site_builder.router_admin import router as site_builder_admin_router
@@ -66,6 +67,7 @@ app.include_router(booking_admin_router, prefix=prefix)
 app.include_router(booking_public_router, prefix=prefix)
 app.include_router(customers_router, prefix=prefix)
 app.include_router(payments_router, prefix=prefix)
+app.include_router(payments_public_router, prefix=prefix)
 app.include_router(payments_webhook_router, prefix=prefix)
 app.include_router(subscriptions_router, prefix=prefix)
 app.include_router(subscriptions_webhook_router, prefix=prefix)

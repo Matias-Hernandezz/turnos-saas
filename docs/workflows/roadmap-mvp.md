@@ -67,11 +67,15 @@ Landing fija (sin builder); hold 15 min activo.
 - [x] CRUD crear turno manual desde admin
 - **Salir a probar con un negocio real** (ej. peluquería) antes de MP/builder
 - Suscripción al SaaS **manual** (transferencia) hasta fase 8
-- **Spike Mercado Pago en paralelo:** OAuth tenant, webhook sandbox, decisión split/marketplace
+- [x] **Spike Mercado Pago:** OAuth tenant, webhook sandbox, checkout seña — ver [spike-mercadopago.md](./spike-mercadopago.md)
 
-## Fase 5 — Mercado Pago (seña)
+## Fase 5 — Mercado Pago (seña) (en curso)
 
-- Implementación completa tras spike
+- [x] OAuth conectar cuenta tenant + tokens cifrados
+- [x] Preferencia / checkout público por `public_code`
+- [x] Webhook tenant-payments (firma + idempotencia) → confirmar turno
+- [ ] Split / comisión marketplace
+- [ ] Reembolsos y edge cases cancelación
 - Ver [../mercado-pago.md](../mercado-pago.md)
 
 ## Fase 6a — Plantilla + tema

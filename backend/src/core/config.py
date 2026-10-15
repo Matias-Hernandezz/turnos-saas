@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     trust_proxy_headers: bool = False
     default_public_host: str = "localhost:5173"
     public_app_base_url: str = "http://localhost:5173"
+    api_public_base_url: str = "http://localhost:8000/api"
 
     email_from: str = "noreply@turnos.local"
     smtp_host: str | None = None
@@ -42,6 +43,9 @@ class Settings(BaseSettings):
     mp_webhook_secret_subscriptions: str | None = None
     mp_client_id: str | None = None
     mp_client_secret: str | None = None
+    mp_redirect_uri: str = "http://localhost:8000/api/admin/payments/mp/callback"
+    mp_deposit_percent: int = 100
+    mp_skip_webhook_signature_in_test: bool = True
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -69,6 +69,13 @@ export function fetchPublicBooking(slug: string, publicCode: string) {
   );
 }
 
+export function createBookingCheckout(slug: string, publicCode: string) {
+  return apiFetch<{ init_point: string; amount_cents: number }>(
+    `/public/${encodeURIComponent(slug)}/bookings/${encodeURIComponent(publicCode)}/checkout`,
+    { method: "POST" },
+  );
+}
+
 export function cancelPublicBooking(slug: string, publicCode: string) {
   return apiFetch<BookingCreated>(
     `/public/${encodeURIComponent(slug)}/bookings/${encodeURIComponent(publicCode)}/cancel`,
